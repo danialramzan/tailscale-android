@@ -3,6 +3,7 @@
 
 package com.tailscale.ipn.ui.view
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,7 +27,9 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tailscale.ipn.App
 import com.tailscale.ipn.R
+import com.tailscale.ipn.ui.notifier.Notifier
 import com.tailscale.ipn.ui.util.Lists
+import com.tailscale.ipn.ui.util.LoadingIndicator
 import com.tailscale.ipn.ui.viewModel.SplitTunnelAppPickerViewModel
 
 @Composable
@@ -36,7 +39,10 @@ fun SplitTunnelAppPickerView(
 ) {
   val installedApps by model.installedApps.collectAsState()
   val excludedPackageNames by model.excludedPackageNames.collectAsState()
-  val builtInDisallowedPackageNames: List<String> = App.get().builtInDisallowedPackageNames
+    val includedPackageNames by model.includedPackageNames.collectAsState()
+
+    val builtInDisallowedPackageNames: List<String> = App.get().builtInDisallowedPackageNames
+    val prefs by Notifier.prefs.collectAsState()
   val mdmIncludedPackages by model.mdmIncludedPackages.collectAsState()
   val mdmExcludedPackages by model.mdmExcludedPackages.collectAsState()
 
@@ -44,6 +50,41 @@ fun SplitTunnelAppPickerView(
       innerPadding ->
     LazyColumn(modifier = Modifier.padding(innerPadding)) {
       item(key = "header") {
+
+
+
+
+          //
+          val mdmActive =
+              (mdmExcludedPackages.value?.isNotEmpty() == true) ||
+                      (mdmIncludedPackages.value?.isNotEmpty() == true)
+
+
+          // change back to val
+          var effectiveState = prefs?.SplitTunnel == true || mdmActive
+
+//          item("splitToggle") {
+          Setting.Switch(
+//                  "PLACEHOLDER STRING",
+                  R.string.split_tunneling_enabled,
+                  isOn = effectiveState,
+//                  enabled = true,
+                  onToggle = {
+                      Log.wtf("GNX", "SWITCH HIT!")
+//                      effectiveState = !effectiveState
+                      if (!mdmActive) {
+                          LoadingIndicator.start()
+                          model.toggleSplitTunnel {LoadingIndicator.stop()}
+                      }
+                  }
+              )
+//          }
+
+
+          //
+
+
+
         ListItem(
             headlineContent = {
               Text(
@@ -109,3 +150,84 @@ fun SplitTunnelAppPickerView(
     }
   }
 }
+
+//@Composable
+//fun SplitTunnelAppPickerView(
+//    backToSettings: BackNavigation,
+//    model: SplitTunnelAppPickerViewModel = viewModel()
+//) {
+//  val installedApps by model.installedApps.collectAsState()
+//  val excludedPackageNames by model.excludedPackageNames.collectAsState()
+//  val builtInDisallowedPackageNames: List<String> = App.get().builtInDisallowedPackageNames
+//  val mdmIncludedPackages by model.mdmIncludedPackages.collectAsState()
+//  val mdmExcludedPackages by model.mdmExcludedPackages.collectAsState()
+//
+//  Scaffold(topBar = { Header(titleRes = R.string.split_tunneling, onBack = backToSettings) }) {
+//      innerPadding ->
+//    LazyColumn(modifier = Modifier.padding(innerPadding)) {
+//      item(key = "header") {
+//        ListItem(
+//            headlineContent = {
+//              Text(
+//                  stringResource(
+//                      R.string
+//                          .selected_apps_will_access_the_internet_directly_without_using_tailscale))
+//            })
+//      }
+//      if (mdmExcludedPackages.value?.isNotEmpty() == true) {
+//        item("mdmExcludedNotice") {
+//          ListItem(
+//              headlineContent = {
+//                Text(stringResource(R.string.certain_apps_are_not_routed_via_tailscale))
+//              })
+//        }
+//      } else if (mdmIncludedPackages.value?.isNotEmpty() == true) {
+//        item("mdmIncludedNotice") {
+//          ListItem(
+//              headlineContent = {
+//                Text(stringResource(R.string.only_specific_apps_are_routed_via_tailscale))
+//              })
+//        }
+//      } else {
+//        item("resolversHeader") {
+//          Lists.SectionDivider(
+//              stringResource(R.string.count_excluded_apps, excludedPackageNames.count()))
+//        }
+//        items(installedApps) { app ->
+//          ListItem(
+//              headlineContent = { Text(app.name, fontWeight = FontWeight.SemiBold) },
+//              leadingContent = {
+//                Image(
+//                    bitmap =
+//                        model.installedAppsManager.packageManager
+//                            .getApplicationIcon(app.packageName)
+//                            .toBitmap()
+//                            .asImageBitmap(),
+//                    contentDescription = null,
+//                    modifier = Modifier.width(40.dp).height(40.dp))
+//              },
+//              supportingContent = {
+//                Text(
+//                    app.packageName,
+//                    color = MaterialTheme.colorScheme.secondary,
+//                    fontSize = MaterialTheme.typography.bodySmall.fontSize,
+//                    letterSpacing = MaterialTheme.typography.bodySmall.letterSpacing)
+//              },
+//              trailingContent = {
+//                Checkbox(
+//                    checked = excludedPackageNames.contains(app.packageName),
+//                    enabled = !builtInDisallowedPackageNames.contains(app.packageName),
+//                    onCheckedChange = { checked ->
+//                      if (checked) {
+//                        model.exclude(packageName = app.packageName)
+//                      } else {
+//                        model.unexclude(packageName = app.packageName)
+//                      }
+//                    })
+//              })
+//          Lists.ItemDivider()
+//        }
+//      }
+//    }
+//  }
+//}

@@ -59,6 +59,7 @@ class Ipn {
       var RouteAll: Boolean = false,
       var AllowsSingleHosts: Boolean = false,
       var CorpDNS: Boolean = false,
+      var SplitTunnel: Boolean = false,
       var WantRunning: Boolean = false,
       var LoggedOut: Boolean = false,
       var ShieldsUp: Boolean = false,
@@ -92,6 +93,7 @@ class Ipn {
       var ControlURLSet: Boolean? = null,
       var RouteAllSet: Boolean? = null,
       var CorpDNSSet: Boolean? = null,
+      var SplitTunnelSet: Boolean? = null,
       var ExitNodeIDSet: Boolean? = null,
       var ExitNodeAllowLANAccessSet: Boolean? = null,
       var WantRunningSet: Boolean? = null,
@@ -119,6 +121,12 @@ class Ipn {
         field = value
         CorpDNSSet = true
       }
+
+      var SplitTunnel: Boolean? = null
+          set(value) {
+              field = value
+              SplitTunnelSet = true
+          }
 
     var ExitNodeID: StableNodeID? = null
       set(value) {
@@ -244,6 +252,7 @@ fun Ipn.MaskedPrefs.deepCopy(): Ipn.MaskedPrefs {
     if (this.ControlURLSet == true) it.ControlURL = this.ControlURL
     if (this.RouteAllSet == true) it.RouteAll = this.RouteAll
     if (this.CorpDNSSet == true) it.CorpDNS = this.CorpDNS
+      if (this.SplitTunnelSet == true) it.SplitTunnel = this.SplitTunnel
     if (this.ExitNodeIDSet == true) it.ExitNodeID = this.ExitNodeID
     if (this.ExitNodeAllowLANAccessSet == true)
         it.ExitNodeAllowLANAccess = this.ExitNodeAllowLANAccess

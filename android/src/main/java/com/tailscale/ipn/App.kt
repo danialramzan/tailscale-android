@@ -426,7 +426,8 @@ open class UninitializedApp : Application() {
     // the VPN (i.e. we're logged in and machine is authorized).
     private const val ABLE_TO_START_VPN_KEY = "ableToStartVPN"
     private const val DISALLOWED_APPS_KEY = "disallowedApps"
-    // File for shared preferences that are not encrypted.
+      private const val ALLOWED_APPS_KEY = "allowedApps"
+      // File for shared preferences that are not encrypted.
     private const val UNENCRYPTED_PREFERENCES = "unencrypted"
     private lateinit var appInstance: UninitializedApp
     lateinit var notificationManager: NotificationManagerCompat
@@ -599,7 +600,17 @@ open class UninitializedApp : Application() {
     this.restartVPN()
   }
 
-  fun disallowedPackageNames(): List<String> {
+    fun updateUserAllowedPackageNames(packageNames: List<String>) {
+        if (packageNames.any { it.isEmpty() }) {
+            TSLog.e(TAG, "updateUserAllowedPackageNames called with empty packageName(s)")
+            return
+        }
+        getUnencryptedPrefs().edit().putStringSet(ALLOWED_APPS_KEY, packageNames.toSet()).apply()
+        this.restartVPN()
+    }
+
+
+    fun disallowedPackageNames(): List<String> {
     val mdmDisallowed =
         MDMSettings.excludedPackages.flow.value.value?.split(",")?.map { it.trim() } ?: emptyList()
     if (mdmDisallowed.isNotEmpty()) {
@@ -611,7 +622,23 @@ open class UninitializedApp : Application() {
     return builtInDisallowedPackageNames + userDisallowed
   }
 
-  fun getAppScopedViewModel(): AppViewModel {
+
+    fun allowedPackageNames(): List<String> {
+        val includedPackages =
+            MDMSettings.includedPackages.flow.value.value?.split(",")?.map { it.trim() } ?: emptyList()
+
+        if (includedPackages.isNotEmpty()) {
+            TSLog.d(TAG, "Included application packages were set via MDM: $includedPackages")
+            return includedPackages
+        }
+
+        val userAllowed =
+            getUnencryptedPrefs().getStringSet(ALLOWED_APPS_KEY, emptySet())?.toList() ?: emptyList()
+        return userAllowed
+    }
+
+
+    fun getAppScopedViewModel(): AppViewModel {
     return appViewModel
   }
 
