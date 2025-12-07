@@ -18,6 +18,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.stringResource
@@ -51,9 +53,6 @@ fun SplitTunnelAppPickerView(
     LazyColumn(modifier = Modifier.padding(innerPadding)) {
       item(key = "header") {
 
-
-
-
           //
           val mdmActive =
               (mdmExcludedPackages.value?.isNotEmpty() == true) ||
@@ -61,17 +60,19 @@ fun SplitTunnelAppPickerView(
 
 
           // change back to val
-          var effectiveState = prefs?.SplitTunnel == true || mdmActive
+          var effectiveState = //
+          remember { mutableStateOf(prefs?.SplitTunnel == true || mdmActive) }
+
 
 //          item("splitToggle") {
           Setting.Switch(
 //                  "PLACEHOLDER STRING",
                   R.string.split_tunneling_enabled,
-                  isOn = effectiveState,
+                  isOn = effectiveState.value,
 //                  enabled = true,
                   onToggle = {
                       Log.wtf("GNX", "SWITCH HIT!")
-//                      effectiveState = !effectiveState
+//                      effectiveState.value = !effectiveState.value
                       if (!mdmActive) {
                           LoadingIndicator.start()
                           model.toggleSplitTunnel {LoadingIndicator.stop()}
