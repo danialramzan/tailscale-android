@@ -8,12 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.tailscale.ipn.App
 import com.tailscale.ipn.mdm.MDMSettings
 import com.tailscale.ipn.mdm.SettingState
-import com.tailscale.ipn.ui.localapi.Client
-import com.tailscale.ipn.ui.notifier.Notifier
 import com.tailscale.ipn.ui.util.InstalledApp
 import com.tailscale.ipn.ui.util.InstalledAppsManager
 import com.tailscale.ipn.ui.util.set
-import com.tailscale.ipn.ui.model.Ipn
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

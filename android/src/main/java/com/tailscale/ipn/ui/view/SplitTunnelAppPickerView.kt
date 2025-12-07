@@ -29,9 +29,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tailscale.ipn.App
 import com.tailscale.ipn.R
-import com.tailscale.ipn.ui.notifier.Notifier
 import com.tailscale.ipn.ui.util.Lists
-import com.tailscale.ipn.ui.util.LoadingIndicator
 import com.tailscale.ipn.ui.viewModel.SplitTunnelAppPickerViewModel
 
 @Composable

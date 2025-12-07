@@ -613,10 +613,12 @@ open class UninitializedApp : Application() {
     fun disallowedPackageNames(): List<String> {
     val mdmDisallowed =
         MDMSettings.excludedPackages.flow.value.value?.split(",")?.map { it.trim() } ?: emptyList()
-    if (mdmDisallowed.isNotEmpty()) {
+
+        if (mdmDisallowed.isNotEmpty()) {
       TSLog.d(TAG, "Excluded application packages were set via MDM: $mdmDisallowed")
       return builtInDisallowedPackageNames + mdmDisallowed
     }
+
     val userDisallowed =
         getUnencryptedPrefs().getStringSet(DISALLOWED_APPS_KEY, emptySet())?.toList() ?: emptyList()
     return builtInDisallowedPackageNames + userDisallowed
@@ -624,12 +626,12 @@ open class UninitializedApp : Application() {
 
 
     fun allowedPackageNames(): List<String> {
-        val includedPackages =
+        val mdmAllowed =
             MDMSettings.includedPackages.flow.value.value?.split(",")?.map { it.trim() } ?: emptyList()
 
-        if (includedPackages.isNotEmpty()) {
-            TSLog.d(TAG, "Included application packages were set via MDM: $includedPackages")
-            return includedPackages
+        if (mdmAllowed.isNotEmpty()) {
+            TSLog.d(TAG, "Included application packages were set via MDM: $mdmAllowed")
+            return mdmAllowed
         }
 
         val userAllowed =
