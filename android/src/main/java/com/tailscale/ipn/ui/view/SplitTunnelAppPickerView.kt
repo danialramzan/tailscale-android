@@ -53,6 +53,7 @@ fun SplitTunnelAppPickerView(
     val currentSplitMode = remember { mutableStateOf(App.get().getSplitTunnelMode())}
 
 
+
     Scaffold(topBar = { Header(titleRes = R.string.split_tunneling, onBack = backToSettings) }) {
       innerPadding ->
     LazyColumn(modifier = Modifier.padding(innerPadding)) {
