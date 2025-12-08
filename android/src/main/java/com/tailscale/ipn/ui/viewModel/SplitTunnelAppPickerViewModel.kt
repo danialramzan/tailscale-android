@@ -43,12 +43,6 @@ class SplitTunnelAppPickerViewModel : ViewModel() {
               .intersect(installedApps.value.map { it.packageName }.toSet())
               .toList())
 
-
-      viewModelScope.launch {
-          Notifier.prefs.collect { prefs ->
-              prefs?.let { enforceMdMSplitTunnel(it) }
-          }
-      }
   }
 
   fun exclude(packageName: String) {
@@ -92,31 +86,21 @@ class SplitTunnelAppPickerViewModel : ViewModel() {
     }
 
 
-    // Toggle for SplitTunnel
-    fun toggleSplitTunnel(callback: (Result<Ipn.Prefs>) -> Unit) {
-        val prefs =
-            Notifier.prefs.value
-                ?: run {
-                    callback(Result.failure(Exception("no prefs")))
-                    return@toggleSplitTunnel
-                }
-
-        val out = Ipn.MaskedPrefs()
-        out.SplitTunnel = !prefs.SplitTunnel
-        Client(viewModelScope).editPrefs(out, callback)
+    fun toggleSplitTunnel() {
+        val newValue = !App.get().isSplitTunnelEnabled()
+        App.get().setSplitTunnelEnabled(newValue)
     }
 
-    // If MDM inforces split tunnel — write it to daemon
-    private fun enforceMdMSplitTunnel(prefs: Ipn.Prefs) {
+    // If MDM inforces split tunnel — write it to sharedprefs
+    private fun enforceMdMSplitTunnel() {
         val mdmActive =
-            mdmExcludedPackages.value.value != null ||
-                    mdmIncludedPackages.value.value != null
+            mdmExcludedPackages.value.value?.isNotEmpty() == true ||
+                    mdmIncludedPackages.value.value?.isNotEmpty() == true
 
-        if (mdmActive && !prefs.SplitTunnel) {
-            val out = Ipn.MaskedPrefs()
-            out.SplitTunnel = true
-            Client(viewModelScope).editPrefs(out) {}
+        if (mdmActive && !App.get().isSplitTunnelEnabled()) {
+            App.get().setSplitTunnelEnabled(true)
         }
     }
+
 
 }

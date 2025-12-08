@@ -427,6 +427,9 @@ open class UninitializedApp : Application() {
     private const val ABLE_TO_START_VPN_KEY = "ableToStartVPN"
     private const val DISALLOWED_APPS_KEY = "disallowedApps"
       private const val ALLOWED_APPS_KEY = "allowedApps"
+      private const val SPLIT_TUNNEL_KEY = "splitTunnelEnabled"
+      private const val SPLIT_TUNNEL_MODE_KEY = "split_tunnel_mode"
+
       // File for shared preferences that are not encrypted.
     private const val UNENCRYPTED_PREFERENCES = "unencrypted"
     private lateinit var appInstance: UninitializedApp
@@ -609,6 +612,32 @@ open class UninitializedApp : Application() {
         this.restartVPN()
     }
 
+    fun isSplitTunnelEnabled(): Boolean =
+        getUnencryptedPrefs().getBoolean(SPLIT_TUNNEL_KEY, false)
+
+    fun setSplitTunnelEnabled(enabled: Boolean) {
+        getUnencryptedPrefs().edit().putBoolean(SPLIT_TUNNEL_KEY, enabled).apply()
+        restartVPN()
+    }
+
+    fun setSplitTunnelMode(mode: SplitTunnelMode) {
+        getUnencryptedPrefs().edit()
+            .putString(SPLIT_TUNNEL_MODE_KEY, mode.name)
+            .apply()
+        restartVPN()
+    }
+
+    fun getSplitTunnelMode(): SplitTunnelMode {
+        val stored = getUnencryptedPrefs().getString(SPLIT_TUNNEL_MODE_KEY, null)
+        return if (stored != null) {
+            SplitTunnelMode.valueOf(stored)
+        } else {
+            SplitTunnelMode.EXCLUDE
+        }
+    }
+
+
+
 
     fun disallowedPackageNames(): List<String> {
     val mdmDisallowed =
@@ -669,4 +698,9 @@ open class UninitializedApp : Application() {
           // Android Connectivity Service https://github.com/tailscale/tailscale/issues/14128
           "com.google.android.apps.scone",
       )
+
+    enum class SplitTunnelMode {
+        INCLUDE,
+        EXCLUDE
+    }
 }
