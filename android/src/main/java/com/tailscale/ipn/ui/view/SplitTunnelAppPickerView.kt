@@ -89,7 +89,7 @@ fun SplitTunnelAppPickerView(
                       R.string
                           .selected_apps_will_follow_custom_routing))
             })
-
+          
       }
 
 
